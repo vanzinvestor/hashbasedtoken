@@ -1,0 +1,65 @@
+{
+  "name": "hashbasedtoken",
+  "version": "0.1.0",
+  "description": "Hash-Based Token",
+  "main": "lib/index.js",
+  "types": "lib/index.d.ts",
+  "scripts": {
+    "dev": "tsc --watch",
+    "compile": "tsc",
+    "clean": "rimraf lib",
+    "test": "mocha -r ts-node/register tests/**/*.spec.ts",
+    "test:coverage": "nyc npm run test",
+    "build": "npm run clean && npm run compile",
+    "prepublishOnly": "npm run test:coverage && npm run build"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/vanzinvestor/hashbasedtoken"
+  },
+  "keywords": [
+    "token",
+    "hash-based",
+    "hash-based-token"
+  ],
+  "homepage": "https://github.com/vanzinvestor/hashbasedtoken",
+  "author": "Vanz Investor <vanzinvestor@gmail.com>",
+  "license": "MIT",
+  "dependencies": {
+    "bcrypt": "^5.1.0",
+    "ms": "^2.1.3"
+  },
+  "devDependencies": {
+    "@istanbuljs/nyc-config-typescript": "^1.0.2",
+    "@types/bcrypt": "^5.0.0",
+    "@types/mocha": "^10.0.1",
+    "@types/ms": "^0.7.31",
+    "@types/node": "^18.11.18",
+    "@typescript-eslint/eslint-plugin": "^5.49.0",
+    "@typescript-eslint/parser": "^5.49.0",
+    "eslint": "^8.28.0",
+    "mocha": "^10.2.0",
+    "nyc": "^15.1.0",
+    "rimraf": "^3.0.2",
+    "ts-node": "^10.9.1",
+    "typescript": "^4.9.5"
+  },
+  "nyc": {
+    "extends": "@istanbuljs/nyc-config-typescript",
+    "check-coverage": true,
+    "all": true,
+    "include": [
+      "src/**/!(*.test.*).[tj]s?(x)"
+    ],
+    "exclude": [
+      "src/_tests_/**/*.*"
+    ],
+    "reporter": [
+      "html",
+      "lcov",
+      "text",
+      "text-summary"
+    ],
+    "report-dir": "coverage"
+  }
+}
