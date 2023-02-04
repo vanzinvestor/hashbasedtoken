@@ -22,7 +22,11 @@ npm install hashbasedtoken
 import hbt from 'hashbasedtoken';
 
 // create token
-const token = await hbt.sign('token_id', 'super_secret_key', '15m');
+const token = await hbt.sign('token_id', 'super_secret_key', {
+  expiresIn: '5m',
+  algorithm: 'HS256',
+});
+// default expiresIn: 120 (milliseconds), default algorithm:'HS256'
 
 // get token id (return string or number token id)
 const tokenId = hbt.getTokenId(token);
