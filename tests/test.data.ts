@@ -7,12 +7,12 @@ export const tokenId = '260d21dc-73a4-4dee-ba9b-eebb67189f5f';
 export const base64urlTokenId =
   'MjYwZDIxZGMtNzNhNC00ZGVlLWJhOWItZWViYjY3MTg5ZjVm';
 
-export const tokenExpiresIn = 1675420075116;
+export const tokenExpiresIn = 1675482240019;
 
-export const base64urlTokenExpiresIn = 'MTY3NTQyMDA3NTExNg';
+export const base64urlTokenExpiresIn = 'MTY3NTQ4MjI0MDAxOQ';
 
 export const signatureToken =
-  'JDJiJDEwJHBqVHQvNGxqYnJ6eU0ud1RTQ05nU2V0UkpMMGFxZTdHemY2M0U1d0xJZ0lpazVMYkhraGpL';
+  'dXV0OUM1R2pueWRoQm9Vd1MxM3VXRVQwb1c5LUU1eEJGR1RRc25qRF81Yw';
 
 export const correctToken =
   base64urlTokenId + '.' + base64urlTokenExpiresIn + '.' + signatureToken;

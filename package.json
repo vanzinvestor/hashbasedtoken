@@ -26,12 +26,12 @@
   "author": "Vanz Investor <vanzinvestor@gmail.com>",
   "license": "MIT",
   "dependencies": {
-    "bcrypt": "^5.1.0",
+    "jwa": "^2.0.0",
     "ms": "^2.1.3"
   },
   "devDependencies": {
     "@istanbuljs/nyc-config-typescript": "^1.0.2",
-    "@types/bcrypt": "^5.0.0",
+    "@types/jwa": "^2.0.0",
     "@types/mocha": "^10.0.1",
     "@types/ms": "^0.7.31",
     "@types/node": "^18.11.18",

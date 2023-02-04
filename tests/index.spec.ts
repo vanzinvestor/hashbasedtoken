@@ -47,19 +47,27 @@ describe('Index tests', function () {
       /^Error: Token expires is not numeric$/
     );
   });
+  it('sign token sort secret key should throw Error', async function () {
+    await assertThrowsAsync(
+      async () => await sign(tokenId, incorrectSecretKey, { expiresIn: '5m' }),
+      /^Error: Secret key should be at least 32 characters long$/
+    );
+  });
   it('sign token expiresIn 5m should token', async function () {
-    const token = await sign(tokenId, secretKey, '5m');
+    const token = await sign(tokenId, secretKey, { expiresIn: '5m' });
     assert.equal(token, token);
   });
   it('sign token expiresIn 180 should token', async function () {
-    const token = await sign(tokenId, secretKey, '180');
+    const token = await sign(tokenId, secretKey, { expiresIn: 180 });
     assert.equal(token, token);
   });
-  it('sign token sort secret key should throw Error', async function () {
-    await assertThrowsAsync(
-      async () => await sign(tokenId, incorrectSecretKey, '15m'),
-      /^Error: Secret key should be at least 32 characters long$/
-    );
+  it('sign token algorithm HS256 should token', async function () {
+    const token = await sign(tokenId, secretKey, { algorithm: 'HS256' });
+    assert.equal(token, token);
+  });
+  it('sign token no options should token', async function () {
+    const token = await sign(tokenId, secretKey);
+    assert.equal(token, token);
   });
   it('verify token incorrect format should throw Error', async function () {
     await assertThrowsAsync(
@@ -79,10 +87,23 @@ describe('Index tests', function () {
       /^Error: Token is expired$/
     );
   });
+  it('verify token HS256 should return valid', async function () {
+    const token = await sign(tokenId, secretKey, {
+      expiresIn: '5m',
+      algorithm: 'HS256',
+    });
+    const isValid = await verify(token, secretKey, { algorithm: 'HS256' });
+    assert.equal(true, isValid);
+  });
   it('verify token valid should return valid', async function () {
-    const token = await sign(tokenId, secretKey, '5m');
-    const decoded = await verify(token, secretKey);
-    assert.equal(decoded, decoded);
+    const token = await sign(tokenId, secretKey, { expiresIn: '5m' });
+    const isValid = await verify(token, secretKey);
+    assert.equal(true, isValid);
+  });
+  it('verify token valid should return invalid', async function () {
+    const token = await sign(tokenId, secretKey, { expiresIn: '5m' });
+    const isInvalid = await verify(token, incorrectSecretKey);
+    assert.equal(false, isInvalid);
   });
   it('isExpire token incorrect format should throw Error', function () {
     assert.throws(
@@ -94,7 +115,7 @@ describe('Index tests', function () {
     assert.equal(isExpires(incorrectTokenExpiresIn), true);
   });
   it('isExpire token valid should return false', async function () {
-    const token = await sign(tokenId, secretKey, '5m');
+    const token = await sign(tokenId, secretKey, { expiresIn: '5m' });
     assert.equal(isExpires(token), false);
   });
   it('isExpire token expire should return true', function () {

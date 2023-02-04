@@ -1,4 +1,4 @@
-import bcrypt from 'bcrypt';
+import jwa from 'jwa';
 import ms from 'ms';
 import {
   SEPARATOR,
@@ -9,34 +9,75 @@ import {
   stringBuilder,
 } from './utils';
 
+type Algorithm =
+  | 'HS256'
+  | 'HS384'
+  | 'HS512'
+  | 'RS256'
+  | 'RS384'
+  | 'RS512'
+  | 'PS256'
+  | 'PS384'
+  | 'PS512'
+  | 'ES256'
+  | 'ES384'
+  | 'ES512'
+  | 'none';
+
+export type HbtOptions = {
+  algorithm?: Algorithm;
+};
+
+export type HbtSignOptions = HbtOptions & {
+  expiresIn?: string | number;
+};
+
 export async function sign(
   id: string | number,
-  secretKey: string | Buffer,
-  expiresIn: string
+  secretOrPublicKey: string,
+  options?: HbtSignOptions
 ) {
   try {
-    if (secretKey.length < 32) {
+    if (secretOrPublicKey.length < 32) {
       throw new Error('Secret key should be at least 32 characters long');
     }
 
-    const expires = Date.now() + ms(expiresIn);
+    const expiresIn = options?.expiresIn;
 
-    const rawSignature = stringBuilder(
+    let expires: number;
+
+    if (expiresIn && typeof expiresIn === 'string') {
+      expires = Date.now() + ms(expiresIn);
+    } else if (expiresIn && typeof expiresIn === 'number') {
+      expires = Date.now() + expiresIn;
+    } else {
+      expires = Date.now() + 120;
+    }
+
+    const input = stringBuilder(
       base64UrlEncode(id),
       SEPARATOR,
-      base64UrlEncode(expires),
-      SEPARATOR,
-      secretKey
+      base64UrlEncode(expires)
     );
 
-    const hash = await bcrypt.hash(rawSignature, 10);
+    const inputAlgorithm = options?.algorithm;
+
+    let algorithm: Algorithm;
+
+    if (inputAlgorithm) {
+      algorithm = inputAlgorithm;
+    } else {
+      algorithm = 'HS256';
+    }
+
+    const signature = jwa(algorithm).sign(input, secretOrPublicKey);
 
     const token = stringBuilder(
       base64UrlEncode(id),
       SEPARATOR,
       base64UrlEncode(expires),
       SEPARATOR,
-      base64UrlEncode(hash)
+      base64UrlEncode(signature)
     );
 
     return token;
@@ -45,7 +86,11 @@ export async function sign(
   }
 }
 
-export async function verify(token: string, secretKey: string | Buffer) {
+export async function verify(
+  token: string,
+  secretOrPublicKey: string,
+  options?: HbtOptions
+) {
   try {
     const [id, expires, signature] = splitToken(token);
 
@@ -65,15 +110,23 @@ export async function verify(token: string, secretKey: string | Buffer) {
 
     const signatureUtf8 = base64UrlDecode(signature);
 
-    const rawSignature = stringBuilder(
+    const input = stringBuilder(
       base64UrlEncode(idUtf8),
       SEPARATOR,
-      base64UrlEncode(expiresUtf8),
-      SEPARATOR,
-      secretKey
+      base64UrlEncode(expiresUtf8)
     );
 
-    return await bcrypt.compare(rawSignature, signatureUtf8);
+    const inputAlgorithm = options?.algorithm;
+
+    let algorithm: Algorithm;
+
+    if (inputAlgorithm) {
+      algorithm = inputAlgorithm;
+    } else {
+      algorithm = 'HS256';
+    }
+
+    return await jwa(algorithm).verify(input, signatureUtf8, secretOrPublicKey);
   } catch (err: unknown) {
     throw err as Error;
   }
